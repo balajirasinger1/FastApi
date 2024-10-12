@@ -50,6 +50,7 @@ class ItemUpdate(BaseModel):
     quantity: Optional[int] = Field(None, gt=0, example=5)
     expiry_date: Optional[date] = Field(None, example="2024-12-31")
 
+# API for creating a new item
 @app.post("/items")
 def create_item(item: Item):
     item_dict = item.dict()
@@ -59,7 +60,7 @@ def create_item(item: Item):
     result = items_collection.insert_one(item_dict)
     return {"message": "Item created", "item_id": str(result.inserted_id)}
 
-# # API 9: GET /clock-in/filter (Filter clock-in records by email, location, and insert date)
+# # API to GET /clock-in/filter (Filter clock-in records by email, location, and insert date)
 @app.get("/items/filter")
 def filter_items(
     email: Optional[str] = None,
@@ -96,7 +97,7 @@ def filter_items(
         item["_id"] = str(item["_id"])  # Convert ObjectId to string for readability
     return items
   
-
+# API to aggregate items to count grouped by email
 @app.get("/items/aggregate")
 def aggregate_items_by_email():
     aggregation = items_collection.aggregate([
@@ -104,7 +105,7 @@ def aggregate_items_by_email():
     ])
     return list(aggregation) 
       
-
+# API to retrieve an item by ID
 @app.get("/items/{id}") 
 def get_item(id: str):
     try:
@@ -116,7 +117,7 @@ def get_item(id: str):
     except bson_errors.InvalidId:
         raise HTTPException(status_code=400, detail="Invalid item ID")
 
-# API 3: GET /items/filter (Filter items based on email, expiry date, insert date, and quantity)
+# API to GET /items/filter (Filter items based on email, expiry date, insert date, and quantity)
 @app.get("/items/filter")
 def filter_items(
     email: Optional[str] = None,
@@ -130,7 +131,6 @@ def filter_items(
     if expiry_date:
         query["expiry_date"] = {"$gt": expiry_date}  # Filter for items expiring after the given date
     if insert_date:
-        # query["insert_date"] = {"$gte": datetime.fromisoformat(insert_date)}
         try:
             insert_date_obj = datetime.fromisoformat(insert_date)
             query["insert_date"] = {"$gte": insert_date_obj}
@@ -144,7 +144,7 @@ def filter_items(
         item["_id"] = str(item["_id"])  # Convert ObjectId to string for readability
     return items
 
-# API 4: GET /items/aggregate (Aggregate items to count grouped by email)
+# API to GET /items/aggregate (Aggregate items to count grouped by email)
 @app.get("/items/aggregate")
 def aggregate_items_by_email():
     aggregation = items_collection.aggregate([
@@ -152,7 +152,7 @@ def aggregate_items_by_email():
     ])
     return list(aggregation)
 
-# API 5: DELETE /items/{id} (Delete an item by ID)
+# API to DELETE /items/{id} (Delete an item by ID)
 @app.delete("/items/{id}")
 def delete_item(id: str):
     try:
@@ -163,7 +163,7 @@ def delete_item(id: str):
     except bson_errors.InvalidId:
         raise HTTPException(status_code=400, detail="Invalid item ID")
 
-# # API 6: PUT /items/{id} (Update an item by ID)
+# # API to PUT /items/{id} (Update an item by ID)
 @app.put("/items/{id}")
 def update_item(id: str, item: ItemUpdate):
     try:
@@ -184,7 +184,7 @@ def update_item(id: str, item: ItemUpdate):
         raise HTTPException(status_code=400, detail="Invalid item ID")
  
 
-# API 7: POST /clock-in (Create a new clock-in record)
+# API to POST /clock-in (Create a new clock-in record)
 @app.post("/clock-in")
 def clock_in(record: ClockInRecord):
     record_dict = record.dict()
@@ -192,7 +192,7 @@ def clock_in(record: ClockInRecord):
     result = clock_in_collection.insert_one(record_dict)
     return {"message": "Clock-in record created", "record_id": str(result.inserted_id)}
 
-# API 8: GET /clock-in/{id} (Retrieve a clock-in record by ID)
+# API to GET /clock-in/{id} (Retrieve a clock-in record by ID)
 @app.get("/clock-in/{id}")
 def get_clock_in_record(id: str):
     try:
@@ -205,7 +205,7 @@ def get_clock_in_record(id: str):
         raise HTTPException(status_code=400, detail="Invalid record ID")
 
 
-# API 10: PUT /clock-in/{id} (Update a clock-in record by ID)
+# API to PUT /clock-in/{id} (Update a clock-in record by ID)
 @app.put("/clock-in/{id}")
 def update_clock_in_record(id: str, record: ClockInRecord):
     try:
